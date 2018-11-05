@@ -17,18 +17,18 @@ public:
 	~TVector();
 	int GetSize();// размер вектора
 	int GetStartIndex(); // индекс первого элемента
-	//	ValType& GetValue(int pos); // доступ с контролем индекса
+	T & GetValue(int pos); // доступ с контролем индекса
 	T & operator[](int pos); // доступ
 	int operator==(const TVector &v); // сравнение
 	TVector& operator= (const TVector  &v); // присванивание
 	// скалярные операции
-	//TVector operator+ (const ValType &val); // прибавить скаляр
-//	TVector operator- (const ValType &val); // вычесть скаляр
-//	TVector operator* (const ValType &val); // умножить на скаляр
+	TVector operator+ (const T &val); // прибавить скаляр
+	TVector operator- (const T &val); // вычесть скаляр
+	TVector operator* (const T &val); // умножить на скаляр
 	// векторные операции
-	//TVector operator+ (const TVector &v); // сложение
-	//TVector operator- (const TVector &v); // вычитание
-	//TVector operator* (const TVector &v); // скалярное произведение
+	TVector operator+ (const TVector &v); // сложение
+	TVector operator- (const TVector &v); // вычитание
+	T operator* (const TVector &v); // скалярное произведение
 	// ввод-вывод
 	friend istream& operator >> <T> (istream &in, TVector  &v);
 	friend ostream& operator << <T> (ostream &out, const TVector  &v);
@@ -37,6 +37,11 @@ public:
 template <class T>
 TVector <T>::TVector(int s, int si)
 {
+	if (si > s)
+	{ 
+		cout << "eror: StartIndex > Size" << endl;
+		exit(1);
+	}
 	StartIndex = si;
 	Size = s;
 	pVector = new T[s - si];
@@ -47,22 +52,53 @@ TVector <T>::TVector(int s, int si)
 }
 
 template <class T>
-T & TVector <T>:: operator[](int pos)
-{
-	return *pVector[pos];
-}
-
-template <class T>
 TVector <T>::TVector(const TVector &v)
 {
-
-		pVector = new T[v.Size - v.StartIndex];
-		StartIndex = v.StartIndex;
-		Size = v.Size;
+	StartIndex = v.StartIndex;
+	Size = v.Size;
+	pVector = new T[Size - StartIndex];
 	for (int i = 0; i < Size - StartIndex; i++)
 	{
 		pVector[i] = v.pVector[i];
 	}
+}
+
+template <class T>
+TVector <T>::~TVector()
+{
+	delete[] pVector;
+}
+
+template <class T>
+T & TVector <T>::GetValue(int pos)
+{
+	T o = 0;
+	if (pos > Size)
+	{
+		cout << "eror:out of vector";
+		return o;
+	}
+	if (pos < StartIndex)
+	{
+		return o;
+	}
+	return pVector[pos - StartIndex];
+}
+
+template <class T>
+T & TVector <T>:: operator[](int pos)
+{
+	T o = 0;
+	if (pos > Size)
+	{
+		cout << "eror:out of vector";
+		return o;
+	}
+	if (pos < StartIndex)
+	{
+		return o;
+	}
+	return pVector[pos - StartIndex];
 }
 
 template <class T>
@@ -95,7 +131,7 @@ int TVector <T>:: operator==(const TVector &v)
 template <class T>
 TVector <T> & TVector <T>:: operator = (const TVector <T> &v)
 {
-	if (this != &v)
+	if (this == &v)
 	{
 		return *this;
 	}
@@ -114,9 +150,150 @@ return *this;
 }
 
 template <class T>
+TVector <T> TVector <T>::operator+ (const T &val)
+{
+
+	TVector <T> var(Size,0);
+	for (int i = 0; i <  StartIndex; i++)
+	{
+		var.pVector[i] = val;
+	}
+	for (int i = StartIndex; i < Size ; i++)
+	{
+		var.pVector[i] = pVector[i- StartIndex] + val;
+	}
+	return var;
+}
+
+template <class T>
+TVector <T> TVector <T>::operator- (const T &val)
+{
+
+	TVector <T> var(Size, 0);
+	for (int i = 0; i < StartIndex; i++)
+	{
+		var.pVector[i] = -val;
+	}
+	for (int i = StartIndex; i < Size; i++)
+	{
+		var.pVector[i] = pVector[i - StartIndex] - val;
+	}
+	return var;
+}
+
+template <class T>
+TVector <T> TVector <T>::operator* (const T &val)
+{
+	TVector <T> var(*this);
+	for (int i = 0; i < Size - StartIndex; i++)
+	{
+		var.pVector[i] *= val;
+	}
+	return var;
+}
+
+template <class T>
+TVector <T> TVector <T>::operator+ (const TVector &v)
+{
+	if (Size != v.Size)
+	{
+		cout << "eror: different sizes of vectors, impossible to add" << endl;
+		return *this;
+	}
+	if (StartIndex > v.StartIndex)
+	{
+		TVector <T> var(Size, v.StartIndex);
+		for (int i = 0; i < StartIndex - v.StartIndex; i++)
+		{
+			var.pVector[i] = v.pVector[i];
+		}
+		for (int i = 0; i < Size - StartIndex; i++)
+		{
+			var.pVector[i + StartIndex - v.StartIndex] = pVector[i] + v.pVector[i + StartIndex - v.StartIndex];
+		}
+		return var;
+	}
+	else
+	{
+		TVector <T> var(Size, StartIndex);
+		for (int i = 0; i < v.StartIndex - StartIndex; i++)
+		{
+			var.pVector[i] = pVector[i];
+		}
+		for (int i = 0; i < Size - v.StartIndex; i++)
+		{
+			var.pVector[i + v.StartIndex - StartIndex] = v.pVector[i] + pVector[i + v.StartIndex - StartIndex];
+		}
+		return var;
+	}
+}
+
+template <class T>
+TVector <T> TVector <T>::operator- (const TVector &v)
+{
+	if (Size != v.Size)
+	{
+		cout << "eror: different sizes of vectors, impossible to deduct" << endl;
+		return *this;
+	}
+	if (StartIndex > v.StartIndex)
+	{
+		TVector <T> var(Size, v.StartIndex);
+		for (int i = 0; i < StartIndex - v.StartIndex; i++)
+		{
+			var.pVector[i] = -v.pVector[i];
+		}
+		for (int i = 0; i < Size - StartIndex; i++)
+		{
+			var.pVector[i + StartIndex - v.StartIndex] = pVector[i] - v.pVector[i + StartIndex - v.StartIndex];
+		}
+		return var;
+	}
+	else
+	{
+		TVector <T> var(Size, StartIndex);
+		for (int i = 0; i < v.StartIndex - StartIndex; i++)
+		{
+			var.pVector[i] = pVector[i];
+		}
+		for (int i = 0; i < Size - v.StartIndex; i++)
+		{
+			var.pVector[i + v.StartIndex - StartIndex] = -v.pVector[i] + pVector[i + v.StartIndex - StartIndex];
+		}
+		return var;
+	}
+}
+
+template <class T>
+T TVector <T>::operator* (const TVector &v)
+{
+	if (Size != v.Size )
+	{
+		cout << "eror: different sizes of vectors, unable to calculate scalar product" << endl;
+		return 0;
+	}
+	T var = 0;
+	if (StartIndex > v.StartIndex)
+	{
+		for (int i = 0; i < Size - StartIndex; i++)
+		{
+			var += pVector[i] * v.pVector[i + StartIndex - v.StartIndex];
+		}
+	}
+	else
+	{
+		for (int i = 0; i < Size - v.StartIndex; i++)
+		{
+			var += v.pVector[i] * pVector[i + v.StartIndex - StartIndex];
+		}
+	}
+	return var;
+}
+
+template <class T>
 istream &  operator>>(istream &in, TVector  <T> & v)
 {
-	cout << "enter";
+	cout << "enter vector elements";
 	for (int i = 0; i < v.Size - v.StartIndex; i++)
 	{
 		in >> v.pVector[i];
@@ -138,8 +315,3 @@ ostream& operator<<(ostream &out, const TVector <T> & v)
 	return out;
 }
 
-template <class T>
-TVector <T>::~TVector()
-{
-	delete[] pVector;
-}

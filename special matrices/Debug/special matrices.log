@@ -1,2 +1,4 @@
 ﻿  special matrices.cpp
+d:\visual studio\special matrices\special matrices\vector.h(79): warning C4172: возвращение адреса локальной или временной переменной : o
+d:\visual studio\special matrices\special matrices\vector.h(83): warning C4172: возвращение адреса локальной или временной переменной : o
   special matrices.vcxproj -> D:\visual studio\special matrices\Debug\special matrices.exe
