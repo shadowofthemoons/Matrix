@@ -12,7 +12,7 @@ protected:
 	int Size; // размер вектора
 	int StartIndex; // индекс первого элемента вектора
 public:
-	TVector(int s, int si);
+	TVector(int s = 10, int si = 0);
 	TVector(const TVector &v); // конструктор копирования
 	~TVector();
 	int GetSize();// размер вектора
@@ -293,7 +293,6 @@ T TVector <T>::operator* (const TVector &v)
 template <class T>
 istream &  operator>>(istream &in, TVector  <T> & v)
 {
-	cout << "enter vector elements";
 	for (int i = 0; i < v.Size - v.StartIndex; i++)
 	{
 		in >> v.pVector[i];
