@@ -18,7 +18,7 @@ public:
 	int GetSize();// размер вектора
 	int GetStartIndex(); // индекс первого элемента
 	T & GetValue(int pos); // доступ с контролем индекса
-	T & operator[](int pos); // доступ
+	T & operator[](int pos)const ; // доступ
 	int operator==(const TVector &v); // сравнение
 	TVector& operator= (const TVector  &v); // присванивание
 	// скалярные операции
@@ -86,7 +86,7 @@ T & TVector <T>::GetValue(int pos)
 }
 
 template <class T>
-T & TVector <T>:: operator[](int pos)
+T & TVector <T>:: operator[](int pos)const
 {
 	T o = 0;
 	if (pos > Size)
