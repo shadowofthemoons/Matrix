@@ -17,9 +17,9 @@ public:
 	~TVector();
 	int GetSize();// размер вектора
 	int GetStartIndex(); // индекс первого элемента
-	T & GetValue(int pos); // доступ с контролем индекса
 	T & operator[](int pos)const ; // доступ
 	int operator==(const TVector &v); // сравнение
+	int operator!=(const TVector &v);
 	TVector& operator= (const TVector  &v); // присванивание
 	// скалярные операции
 	TVector operator+ (const T &val); // прибавить скаляр
@@ -69,30 +69,16 @@ TVector <T>::~TVector()
 	delete[] pVector;
 }
 
-template <class T>
-T & TVector <T>::GetValue(int pos)
-{
-	T o = 0;
-	if (pos > Size)
-	{
-		cout << "eror:out of vector";
-		return o;
-	}
-	if (pos < StartIndex)
-	{
-		return o;
-	}
-	return pVector[pos - StartIndex];
-}
+
 
 template <class T>
 T & TVector <T>:: operator[](int pos)const
 {
 	T o = 0;
-	if (pos > Size)
+	if (pos > Size||pos<0)
 	{
 		cout << "eror:out of vector";
-		return o;
+		throw(0);
 	}
 	if (pos < StartIndex)
 	{
@@ -126,6 +112,22 @@ int TVector <T>:: operator==(const TVector &v)
 			return 0;
 	}
 	return 1;
+}
+
+
+template <class T>
+int TVector <T>:: operator!=(const TVector &v)
+{
+	if (Size != v.Size || StartIndex != v.StartIndex)
+	{
+		return 1;
+	}
+	for (int i = 0; i < Size - StartIndex; i++)
+	{
+		if (pVector[i] != v.pVector[i])
+			return 1;
+	}
+	return 0;
 }
 
 template <class T>
@@ -198,7 +200,7 @@ TVector <T> TVector <T>::operator+ (const TVector &v)
 	if (Size != v.Size)
 	{
 		cout << "eror: different sizes of vectors, impossible to add" << endl;
-		return *this;
+		throw(0);
 	}
 	if (StartIndex > v.StartIndex)
 	{
@@ -234,7 +236,7 @@ TVector <T> TVector <T>::operator- (const TVector &v)
 	if (Size != v.Size)
 	{
 		cout << "eror: different sizes of vectors, impossible to deduct" << endl;
-		return *this;
+		throw(0);
 	}
 	if (StartIndex > v.StartIndex)
 	{
@@ -270,7 +272,7 @@ T TVector <T>::operator* (const TVector &v)
 	if (Size != v.Size )
 	{
 		cout << "eror: different sizes of vectors, unable to calculate scalar product" << endl;
-		return 0;
+		throw(0);
 	}
 	T var = 0;
 	if (StartIndex > v.StartIndex)
@@ -305,11 +307,16 @@ ostream& operator<<(ostream &out, const TVector <T> & v)
 {
 	for (int i = 0; i < v.StartIndex; i++)
 	{
-		out << 0 << ' ';
+		out.width(4);
+		out << 0 <<' ';
+		
 	}
+
 	for (int i = 0; i < v.Size - v.StartIndex; i++)
 	{
+		out.width(4);
 		out << v.pVector[i] << ' ';
+	   
 	}
 	return out;
 }
